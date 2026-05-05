@@ -1,0 +1,57 @@
+# ══════════════════════════════════════════════════════════════
+#  VisionX — Intelligent Multi-Camera Video Analysis System
+# ══════════════════════════════════════════════════════════════
+
+# ─── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ─── Virtual Environment ────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ─── Environment Variables (CRITICAL: protects API keys) ────
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ─── IDE / Editor ───────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ─── OS Generated ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.lnk
+
+# ─── Logs ───────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── Node (if any frontend tooling added later) ────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Misc ───────────────────────────────────────────────────
+*.bak
+*.tmp
+*.temp
+.cache/
