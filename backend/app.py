@@ -28,6 +28,13 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Filter out spammy /api/cameras polling logs from uvicorn access
+class EndpointFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return "/api/cameras" not in record.getMessage()
+
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
+
 # ── Shared State ───────────────────────────────────────────────────────────────
 cache = KVCache()
 cam_mgr = CameraManager(cache)

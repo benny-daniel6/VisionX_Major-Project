@@ -50,6 +50,7 @@ const dom = {
     modalClose:       $('#modal-close'),
     addCameraForm:    $('#add-camera-form'),
     btnStopSpeech:    $('#btn-stop-speech'),
+    btnThemeToggle:   $('#btn-theme-toggle'),
 };
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -57,12 +58,51 @@ const dom = {
 // ══════════════════════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
     initEventListeners();
     initSpeechRecognition();
     initResizeHandle();
     loadCameras();
     setInterval(loadCameras, 5000); // Poll for camera updates
 });
+
+function initTheme() {
+    if (!dom.btnThemeToggle) return;
+    
+    const savedTheme = localStorage.getItem('visionx-theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        updateThemeIcon('light');
+    }
+
+    dom.btnThemeToggle.addEventListener('click', () => {
+        const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        
+        if (newTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+        
+        updateThemeIcon(newTheme);
+        localStorage.setItem('visionx-theme', newTheme);
+    });
+}
+
+function updateThemeIcon(theme) {
+    const sunIcon = dom.btnThemeToggle.querySelector('.sun-icon');
+    const moonIcon = dom.btnThemeToggle.querySelector('.moon-icon');
+    if (sunIcon && moonIcon) {
+        if (theme === 'light') {
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+        } else {
+            sunIcon.style.display = 'block';
+            moonIcon.style.display = 'none';
+        }
+    }
+}
 
 function initEventListeners() {
     // Send query
