@@ -538,11 +538,16 @@ function showResponse(data) {
     dom.responsePlaceholder.style.display = 'none';
     dom.responseContent.style.display = 'flex';
 
-    // Show mode-aware camera label
+    // Show mode-aware camera label with routing source badge if fallback occurred
     if (data.mode === 'all' && data.cameras_analyzed) {
         dom.routedCameraName.textContent = `📡 All (${data.cameras_analyzed.length}): ${data.cameras_analyzed.join(', ')}`;
     } else {
-        dom.routedCameraName.textContent = data.camera_name || 'Unknown';
+        const camName = escapeHtml(data.camera_name || 'Unknown');
+        if (data.routing_source === 'keyword_fallback') {
+            dom.routedCameraName.innerHTML = `${camName} <span class="badge-fallback" style="display:inline-block; font-size:0.75rem; color:#f59e0b; background:rgba(245,158,11,0.15); padding:2px 8px; border-radius:10px; margin-left:6px; border:1px solid rgba(245,158,11,0.3);">⚡ Keyword Fallback</span>`;
+        } else {
+            dom.routedCameraName.textContent = data.camera_name || 'Unknown';
+        }
     }
 
     // Show analyzed frame if available
@@ -551,6 +556,14 @@ function showResponse(data) {
         dom.analyzedFrameContainer.style.display = 'block';
     } else {
         dom.analyzedFrameContainer.style.display = 'none';
+    }
+
+    // Visually indicate cloud offline / degraded state if applicable
+    const isDegraded = data.status === 'cloud_offline' || data.error_type === 'connectivity' || data.status === 'auth_error';
+    if (isDegraded) {
+        dom.responseText.classList.add('status-degraded');
+    } else {
+        dom.responseText.classList.remove('status-degraded');
     }
 
     // Strip markdown before typing so we don't display raw asterisks/hashes

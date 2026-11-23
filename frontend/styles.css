@@ -883,6 +883,14 @@ body {
     color: var(--text-primary);
 }
 
+.response-text.status-degraded {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.08);
+    border-left: 3px solid #ef4444;
+    padding: 8px 12px;
+    border-radius: 4px;
+}
+
 /* Typing cursor animation */
 .typing-cursor {
     display: inline-block;

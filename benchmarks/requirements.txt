@@ -1,0 +1,3 @@
+# Additional dependencies for benchmark scripts
+# (main app deps are in backend/requirements.txt)
+matplotlib>=3.7

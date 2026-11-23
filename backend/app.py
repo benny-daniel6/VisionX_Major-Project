@@ -20,6 +20,7 @@ from backend.config import DEFAULT_CAMERAS, HOST, PORT
 from backend.kv_cache import KVCache
 from backend.camera_manager import CameraManager
 from backend.gemini_service import GeminiService
+from backend.router import route_query_local
 
 # ── Logging ────────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -235,7 +236,7 @@ async def ask_question(req: AskRequest):
             })
 
         # Send ALL frames to Gemini in one call (thread pool)
-        answer = await asyncio.to_thread(
+        vqa_result = await asyncio.to_thread(
             gemini.analyze_all_frames,
             req.question,
             all_frames,
@@ -246,7 +247,11 @@ async def ask_question(req: AskRequest):
         camera_names = [f["name"] for f in all_frames]
 
         return JSONResponse({
-            "answer": answer,
+            "answer": vqa_result["answer"],
+            "status": vqa_result.get("status", "ok"),
+            "success": vqa_result.get("success", True),
+            "error_type": vqa_result.get("error_type"),
+            "routing_source": "all_cameras",
             "camera_id": None,
             "camera_name": ", ".join(camera_names),
             "cameras_analyzed": camera_names,
@@ -256,14 +261,49 @@ async def ask_question(req: AskRequest):
 
     # ── SINGLE-CAMERA MODE ───────────────────────────────────────────
     # Step 1: Route to the best camera
+    routing_source = "manual" if req.camera_id else "gemini"
     if req.camera_id:
         selected_id = req.camera_id
     elif len(active_cameras) == 1:
         selected_id = active_cameras[0]["id"]
+        routing_source = "single_camera_direct"
     else:
-        selected_id = await asyncio.to_thread(
-            gemini.route_question, req.question, active_cameras
-        )
+        selected_id = None
+        gemini_error = None
+        try:
+            selected_id = await asyncio.to_thread(
+                gemini.route_question, req.question, active_cameras
+            )
+        except Exception as e:
+            gemini_error = e
+
+        if selected_id:
+            logger.info("Routing state: (a) Gemini routing succeeded -> camera_id=%s", selected_id)
+            routing_source = "gemini"
+        else:
+            if gemini_error:
+                logger.error("Routing failed: %s", gemini_error)
+            else:
+                logger.error("Routing failed: Gemini returned no valid camera selection")
+
+            try:
+                selected_id = route_query_local(req.question, active_cameras)
+                if selected_id:
+                    logger.info(
+                        "Routing state: (b) Gemini routing failed but keyword fallback succeeded -> camera_id=%s",
+                        selected_id,
+                    )
+                    routing_source = "keyword_fallback"
+                else:
+                    raise RuntimeError("Keyword router found no matching camera keywords or name")
+            except Exception as kw_e:
+                logger.error("Keyword routing fallback failed: %s", kw_e)
+                selected_id = active_cameras[0]["id"] if active_cameras else None
+                logger.warning(
+                    "Routing state: (c) Both failed and we defaulted to the first camera -> camera_id=%s",
+                    selected_id,
+                )
+                routing_source = "default_first_camera"
 
     # Validate selection
     selected_cam = None
@@ -283,10 +323,13 @@ async def ask_question(req: AskRequest):
             "camera_id": selected_id,
             "camera_name": selected_cam["name"],
             "mode": "single",
+            "status": "no_frame",
+            "success": False,
+            "routing_source": routing_source,
         })
 
     # Step 3: Analyze with Gemini Vision (thread pool)
-    answer = await asyncio.to_thread(
+    vqa_result = await asyncio.to_thread(
         gemini.analyze_frame,
         req.question,
         frame,
@@ -296,7 +339,11 @@ async def ask_question(req: AskRequest):
     frame_b64 = base64.b64encode(frame).decode("utf-8")
 
     return JSONResponse({
-        "answer": answer,
+        "answer": vqa_result["answer"],
+        "status": vqa_result.get("status", "ok"),
+        "success": vqa_result.get("success", True),
+        "error_type": vqa_result.get("error_type"),
+        "routing_source": routing_source,
         "camera_id": selected_id,
         "camera_name": selected_cam["name"],
         "analyzed_frame": frame_b64,

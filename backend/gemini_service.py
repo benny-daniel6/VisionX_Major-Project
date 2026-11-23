@@ -28,13 +28,17 @@ class GeminiService:
             )
         genai.configure(api_key=GOOGLE_API_KEY)
         self._model = genai.GenerativeModel(GEMINI_MODEL)
+        self._last_usage = None  # Token usage tracking for benchmarks
         logger.info("GeminiService initialised with model=%s", GEMINI_MODEL)
 
     def _call_with_retry(self, content, max_retries=3):
         """Call generate_content with retry logic for 429 rate limits."""
         for attempt in range(max_retries):
             try:
-                return self._model.generate_content(content)
+                response = self._model.generate_content(content)
+                # Track token usage for benchmarks
+                self._last_usage = self._extract_usage(response)
+                return response
             except ResourceExhausted as e:
                 wait = 2 ** (attempt + 1)  # 2s, 4s, 8s
                 logger.warning(
@@ -46,6 +50,42 @@ class GeminiService:
                     raise
             except Exception:
                 raise
+
+    @staticmethod
+    def _extract_usage(response) -> dict:
+        """Extract token counts from a Gemini API response.
+
+        On SDK >=0.5.0, reads usage_metadata directly.
+        On older SDKs (0.4.x), estimates from response text length.
+        """
+        # Try the modern SDK path first (usage_metadata)
+        try:
+            meta = response.usage_metadata
+            if meta is not None:
+                return {
+                    "prompt_tokens": getattr(meta, "prompt_token_count", 0),
+                    "candidates_tokens": getattr(meta, "candidates_token_count", 0),
+                    "total_tokens": getattr(meta, "total_token_count", 0),
+                }
+        except (AttributeError, Exception):
+            pass
+
+        # Fallback: estimate from response text (~1.3 tokens per word)
+        try:
+            text = response.text or ""
+            estimated_output = max(1, int(len(text.split()) * 1.3))
+            return {
+                "prompt_tokens": 0,  # Unknown on old SDK
+                "candidates_tokens": estimated_output,
+                "total_tokens": estimated_output,
+                "estimated": True,
+            }
+        except Exception:
+            return {"prompt_tokens": 0, "candidates_tokens": 0, "total_tokens": 0}
+
+    def get_last_usage(self) -> dict:
+        """Return token usage from the most recent API call."""
+        return self._last_usage or {"prompt_tokens": 0, "candidates_tokens": 0, "total_tokens": 0}
 
     # ── Agentic Router ────────────────────────────────────────────────────
 
@@ -96,8 +136,49 @@ Respond with ONLY a JSON object in this exact format (no markdown, no explanatio
             return cam_id
         except Exception as e:
             logger.error("Routing failed: %s", e)
-            # Fallback: return first camera
-            return cameras[0]["id"] if cameras else None
+            return None
+
+    @staticmethod
+    def _classify_error(e: Exception) -> dict:
+        """Categorize an API exception into structured error metadata."""
+        err_str = str(e).lower()
+        err_cls = type(e).__name__
+
+        # 1. Rate limits (429 / quota)
+        if isinstance(e, ResourceExhausted) or "429" in err_str or "quota" in err_str or "resourceexhausted" in err_cls.lower():
+            return {
+                "status": "rate_limited",
+                "error_type": "rate_limit",
+                "message": "Visual analysis unavailable — Gemini API rate limit or quota exceeded. Please retry in a moment.",
+            }
+
+        # 2. Authentication / API key
+        if any(term in err_str for term in ["api key", "api_key", "unauthenticated", "permission denied", "forbidden", "403", "401"]) or "permissiondenied" in err_cls.lower():
+            return {
+                "status": "auth_error",
+                "error_type": "auth",
+                "message": "Visual analysis unavailable — Gemini API key is missing, invalid, or unauthorized.",
+            }
+
+        # 3. Network / connectivity (Cloud unreachable / offline)
+        network_indicators = [
+            "connection", "network", "getaddrinfo", "timeout", "timed out",
+            "unavailable", "dns", "unreachable", "socket", "errno 11001",
+            "winerror 10060", "winerror 10061", "serviceunavailable", "econnrefused"
+        ]
+        if any(term in err_str for term in network_indicators) or "unavailable" in err_cls.lower() or "timeout" in err_cls.lower() or isinstance(e, (ConnectionError, TimeoutError, OSError)):
+            return {
+                "status": "cloud_offline",
+                "error_type": "connectivity",
+                "message": "Visual analysis unavailable — cloud offline (network unreachable or Gemini API down).",
+            }
+
+        # 4. Other / general errors
+        return {
+            "status": "error",
+            "error_type": "general",
+            "message": f"Visual analysis encountered an error: {str(e)}",
+        }
 
     # ── Visual Reasoner ───────────────────────────────────────────────────
 
@@ -106,10 +187,10 @@ Respond with ONLY a JSON object in this exact format (no markdown, no explanatio
         question: str,
         frame_bytes: bytes,
         camera_name: str = "Camera",
-    ) -> str:
+    ) -> dict:
         """
         Send a JPEG frame + question to Gemini multimodal and return
-        a natural-language answer.
+        a structured natural-language response.
         """
         b64_image = base64.b64encode(frame_bytes).decode("utf-8")
 
@@ -142,10 +223,22 @@ Respond with ONLY a JSON object in this exact format (no markdown, no explanatio
                 question[:40],
                 answer[:80],
             )
-            return answer
+            return {
+                "answer": answer,
+                "status": "ok",
+                "success": True,
+                "error_type": None,
+            }
         except Exception as e:
             logger.error("Visual analysis failed: %s", e)
-            return f"I'm sorry, I encountered an error analyzing the feed: {str(e)}"
+            err_meta = self._classify_error(e)
+            return {
+                "answer": err_meta["message"],
+                "status": err_meta["status"],
+                "success": False,
+                "error_type": err_meta["error_type"],
+                "raw_error": str(e),
+            }
 
     # ── Question Classifier ──────────────────────────────────────────────
 
@@ -221,16 +314,21 @@ Respond with ONLY a JSON object in this exact format (no markdown, no explanatio
         self,
         question: str,
         frames: list[dict],
-    ) -> str:
+    ) -> dict:
         """
         Send frames from ALL cameras to Gemini in a single multimodal call.
 
         frames: list of {"name": str, "id": str, "frame_bytes": bytes}
 
-        Returns a synthesized answer that considers all camera feeds.
+        Returns a structured response that considers all camera feeds.
         """
         if not frames:
-            return "No camera frames available for analysis."
+            return {
+                "answer": "No camera frames available for analysis.",
+                "status": "no_frame",
+                "success": False,
+                "error_type": "no_frame",
+            }
 
         # Build the multimodal content: text prompt + all camera images
         camera_list = ", ".join(f'"{f["name"]}"' for f in frames)
@@ -273,7 +371,19 @@ Respond with ONLY a JSON object in this exact format (no markdown, no explanatio
                 len(frames),
                 answer[:80],
             )
-            return answer
+            return {
+                "answer": answer,
+                "status": "ok",
+                "success": True,
+                "error_type": None,
+            }
         except Exception as e:
             logger.error("Multi-camera analysis failed: %s", e)
-            return f"I'm sorry, I encountered an error analyzing the feeds: {str(e)}"
+            err_meta = self._classify_error(e)
+            return {
+                "answer": err_meta["message"],
+                "status": err_meta["status"],
+                "success": False,
+                "error_type": err_meta["error_type"],
+                "raw_error": str(e),
+            }

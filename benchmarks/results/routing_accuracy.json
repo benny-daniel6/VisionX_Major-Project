@@ -1,0 +1,222 @@
+{
+  "benchmark": "routing_accuracy",
+  "cameras": [
+    {
+      "id": "cam_front_door",
+      "name": "Front Door",
+      "keywords": [
+        "entrance",
+        "door",
+        "visitor",
+        "package",
+        "driveway",
+        "porch"
+      ]
+    },
+    {
+      "id": "cam_kitchen",
+      "name": "Kitchen",
+      "keywords": [
+        "kitchen",
+        "stove",
+        "fridge",
+        "cooking",
+        "sink",
+        "food"
+      ]
+    }
+  ],
+  "total_questions": 18,
+  "keyword_baseline": {
+    "results": [
+      {
+        "question": "Is someone standing at the front door?",
+        "bucket": "explicit",
+        "expected_camera": "cam_front_door",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_front_door",
+        "predicted_mode": "SINGLE",
+        "correct": true
+      },
+      {
+        "question": "Show me the kitchen camera feed",
+        "bucket": "explicit",
+        "expected_camera": "cam_kitchen",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_kitchen",
+        "predicted_mode": "SINGLE",
+        "correct": true
+      },
+      {
+        "question": "Is the stove still on?",
+        "bucket": "explicit",
+        "expected_camera": "cam_kitchen",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_kitchen",
+        "predicted_mode": "SINGLE",
+        "correct": true
+      },
+      {
+        "question": "Did a visitor ring the doorbell?",
+        "bucket": "explicit",
+        "expected_camera": "cam_front_door",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_front_door",
+        "predicted_mode": "SINGLE",
+        "correct": true
+      },
+      {
+        "question": "Is anyone cooking right now?",
+        "bucket": "explicit",
+        "expected_camera": "cam_kitchen",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_kitchen",
+        "predicted_mode": "SINGLE",
+        "correct": true
+      },
+      {
+        "question": "Is there a package on the porch?",
+        "bucket": "explicit",
+        "expected_camera": "cam_front_door",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_front_door",
+        "predicted_mode": "SINGLE",
+        "correct": true
+      },
+      {
+        "question": "Did my DoorDash order arrive?",
+        "bucket": "ambiguous",
+        "expected_camera": "cam_front_door",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_front_door",
+        "predicted_mode": "SINGLE",
+        "correct": true
+      },
+      {
+        "question": "Is breakfast ready?",
+        "bucket": "ambiguous",
+        "expected_camera": "cam_kitchen",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_front_door",
+        "predicted_mode": "SINGLE",
+        "correct": false
+      },
+      {
+        "question": "Can you check if the delivery guy is here?",
+        "bucket": "ambiguous",
+        "expected_camera": "cam_front_door",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_front_door",
+        "predicted_mode": "SINGLE",
+        "correct": true
+      },
+      {
+        "question": "Did someone leave the gas on?",
+        "bucket": "ambiguous",
+        "expected_camera": "cam_kitchen",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_front_door",
+        "predicted_mode": "SINGLE",
+        "correct": false
+      },
+      {
+        "question": "Is the pizza guy outside?",
+        "bucket": "ambiguous",
+        "expected_camera": "cam_front_door",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_front_door",
+        "predicted_mode": "SINGLE",
+        "correct": true
+      },
+      {
+        "question": "What is being prepared for dinner?",
+        "bucket": "ambiguous",
+        "expected_camera": "cam_kitchen",
+        "expected_mode": "SINGLE",
+        "predicted_camera": "cam_front_door",
+        "predicted_mode": "SINGLE",
+        "correct": false
+      },
+      {
+        "question": "Is anyone in the building right now?",
+        "bucket": "global",
+        "expected_camera": "ALL",
+        "expected_mode": "ALL",
+        "predicted_camera": "ALL",
+        "predicted_mode": "ALL",
+        "correct": true
+      },
+      {
+        "question": "How many people are visible across all cameras?",
+        "bucket": "global",
+        "expected_camera": "ALL",
+        "expected_mode": "ALL",
+        "predicted_camera": "ALL",
+        "predicted_mode": "ALL",
+        "correct": true
+      },
+      {
+        "question": "Is everyone safe everywhere?",
+        "bucket": "global",
+        "expected_camera": "ALL",
+        "expected_mode": "ALL",
+        "predicted_camera": "ALL",
+        "predicted_mode": "ALL",
+        "correct": true
+      },
+      {
+        "question": "Give me a status update from every camera",
+        "bucket": "global",
+        "expected_camera": "ALL",
+        "expected_mode": "ALL",
+        "predicted_camera": "ALL",
+        "predicted_mode": "ALL",
+        "correct": true
+      },
+      {
+        "question": "Where is my cat? Search all rooms",
+        "bucket": "global",
+        "expected_camera": "ALL",
+        "expected_mode": "ALL",
+        "predicted_camera": "ALL",
+        "predicted_mode": "ALL",
+        "correct": true
+      },
+      {
+        "question": "Is there any motion detected anywhere?",
+        "bucket": "global",
+        "expected_camera": "ALL",
+        "expected_mode": "ALL",
+        "predicted_camera": "ALL",
+        "predicted_mode": "ALL",
+        "correct": true
+      }
+    ],
+    "summary": {
+      "explicit": {
+        "correct": 6,
+        "total": 6,
+        "accuracy_pct": 100.0
+      },
+      "ambiguous": {
+        "correct": 3,
+        "total": 6,
+        "accuracy_pct": 50.0
+      },
+      "global": {
+        "correct": 6,
+        "total": 6,
+        "accuracy_pct": 100.0
+      },
+      "overall": {
+        "correct": 15,
+        "total": 18,
+        "accuracy_pct": 83.3
+      }
+    }
+  },
+  "_metadata": {
+    "timestamp": "2026-09-19T13:56:09.082959",
+    "results_file": "C:\\Users\\benny\\Projects\\Video Analyzer\\X\\benchmarks\\results\\routing_accuracy.json"
+  }
+}

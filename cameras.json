@@ -1,15 +1,18 @@
 [
     {
-        "id": "4683cb05",
-        "name": "Webcam",
-        "source": 0,
+        "id": "2009f276",
+        "name": "Cam1",
+        "source": "http://192.168.1.5:8080/video",
         "keywords": [
-            "desk",
-            "room",
-            "person",
-            "laptop",
-            "face",
-            "office"
+            "Table"
+        ]
+    },
+    {
+        "id": "c0374da8",
+        "name": "Cam2",
+        "source": "http://192.168.1.7:8080/video",
+        "keywords": [
+            "Hall"
         ]
     }
 ]

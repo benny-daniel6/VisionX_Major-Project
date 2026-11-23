@@ -66,7 +66,7 @@ flowchart TB
 
     subgraph AIService ["Cognitive AI Services"]
         Classifier["Question Classifier"]
-        Router["Agentic Router (Gemini / DistilGPT2)"]
+        Router["Agentic Router (Gemini / Keyword Fallback)"]
         Reasoner["Visual Reasoner (Gemini Multimodal)"]
     end
 
@@ -159,7 +159,7 @@ sequenceDiagram
 
 #### 3. Agentic Routing & Visual QA Engine (`backend/gemini_service.py` & `backend/router.py`)
 - **Intent Classifier**: Inspects questions to determine if target intent is single-camera or all-cameras.
-- **Routing Decision**: Uses metadata matching (camera name, description, location keywords) to bind natural language queries to discrete camera IDs. Supports fallback to local `distilgpt2` models for IoT edge setups.
+- **Routing Decision**: Uses metadata matching (camera name, description, location keywords) to bind natural language queries to discrete camera IDs. Supports fallback to offline keyword matching when cloud API is unavailable.
 - **Multimodal Reasoner**: Formulates visual prompts sending full-resolution camera frame JPEG buffers directly to Gemini 2.5 Flash / 2.0 Flash APIs.
 
 ---
@@ -175,7 +175,7 @@ Video Analyzer/X/
 │   ├── config.py            # System configuration & env loading
 │   ├── gemini_service.py    # Gemini API wrapper (Router & Visual Reasoner)
 │   ├── kv_cache.py          # Thread-safe in-memory frame cache
-│   ├── router.py            # Local/hybrid LLM routing fallback module
+│   ├── router.py            # Offline keyword routing fallback module
 │   └── requirements.txt     # Python dependencies
 ├── frontend/
 │   ├── index.html           # Main UI structure & layout

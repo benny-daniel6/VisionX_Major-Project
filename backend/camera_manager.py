@@ -56,6 +56,12 @@ def _normalize_ip_webcam_url(source: str) -> str:
     """
     original = source.strip()
 
+    # If it's a local file path or video file, do not treat as network URL
+    if os.path.exists(original) or original.lower().endswith(
+        (".mp4", ".avi", ".mkv", ".mov", ".webm", ".jpg", ".png", ".jpeg")
+    ):
+        return original
+
     # If it doesn't start with a scheme, add http://
     if not original.startswith(("http://", "https://", "rtsp://")):
         original = f"http://{original}"
@@ -84,7 +90,7 @@ def _open_camera_with_timeout(source: Union[int, str],
     Open a camera source with a timeout for network streams.
     Returns the opened VideoCapture, or None on failure.
     """
-    is_network = isinstance(source, str)
+    is_network = isinstance(source, str) and source.startswith(("http://", "https://", "rtsp://"))
 
     cap = cv2.VideoCapture()
 
@@ -322,7 +328,7 @@ class CameraManager:
         """Continuously capture frames from a camera source with retry logic."""
         delay = 1.0 / CAPTURE_FPS
         encode_params = [cv2.IMWRITE_JPEG_QUALITY, JPEG_QUALITY]
-        is_network = isinstance(cam.source, str)
+        is_network = isinstance(cam.source, str) and cam.source.startswith(("http://", "https://", "rtsp://"))
         retry_count = 0
         retry_delay = INITIAL_RETRY_DELAY
 
@@ -366,6 +372,12 @@ class CameraManager:
                 while cam.active:
                     start = time.monotonic()
                     ret, frame = cap.read()
+                    if not ret:
+                        # If reading from a local video file, loop back to start seamlessly
+                        if isinstance(cam.source, str) and not cam.source.startswith(("http://", "https://", "rtsp://")):
+                            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                            ret, frame = cap.read()
+
                     if not ret:
                         consecutive_failures += 1
                         cam.error = f"Frame read failed ({consecutive_failures}x)"

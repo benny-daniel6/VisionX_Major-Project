@@ -1,0 +1,248 @@
+{
+  "benchmark": "latency",
+  "config": {
+    "server_url": "http://localhost:8000",
+    "rpm_limit": 15,
+    "gap_seconds": 4.0
+  },
+  "summary": {
+    "total_queries": 20,
+    "successful": 20,
+    "failed": 0,
+    "rate_limited": 0,
+    "min_ms": 3784.2,
+    "max_ms": 16790.1,
+    "mean_ms": 5459.9,
+    "median_ms": 4825.8,
+    "stdev_ms": 2770.8,
+    "p95_ms": 16790.1,
+    "single_mean_ms": 5779.9,
+    "all_mean_ms": 4180.1
+  },
+  "results": [
+    {
+      "success": true,
+      "latency_ms": 4919.3,
+      "mode": "single",
+      "camera_name": "Webcam",
+      "answer_preview": "I cannot tell if anyone is at the front door because the camera feed is complete",
+      "status_code": 200,
+      "question": "Is there anyone at the front door?",
+      "expected_mode": "single",
+      "query_index": 1
+    },
+    {
+      "success": true,
+      "latency_ms": 5011.9,
+      "mode": "single",
+      "camera_name": "Kitchen",
+      "answer_preview": "Based on the live feed from the kitchen camera, I see a simplified graphic of a ",
+      "status_code": 200,
+      "question": "What do you see in the kitchen?",
+      "expected_mode": "single",
+      "query_index": 2
+    },
+    {
+      "success": true,
+      "latency_ms": 4435.4,
+      "mode": "single",
+      "camera_name": "Webcam",
+      "answer_preview": "I cannot answer your question because the feed from the 'Webcam' is completely b",
+      "status_code": 200,
+      "question": "Is the door locked?",
+      "expected_mode": "single",
+      "query_index": 3
+    },
+    {
+      "success": true,
+      "latency_ms": 4914.7,
+      "mode": "single",
+      "camera_name": "Kitchen",
+      "answer_preview": "No, I don't see any food on the counter. The feed shows a stove and sink area, b",
+      "status_code": 200,
+      "question": "Is there food on the counter?",
+      "expected_mode": "single",
+      "query_index": 4
+    },
+    {
+      "success": true,
+      "latency_ms": 5439.1,
+      "mode": "single",
+      "camera_name": "Webcam",
+      "answer_preview": "I can't tell if anyone just came in because the camera feed is completely black.",
+      "status_code": 200,
+      "question": "Did someone just come in?",
+      "expected_mode": "single",
+      "query_index": 5
+    },
+    {
+      "success": true,
+      "latency_ms": 4877.9,
+      "mode": "single",
+      "camera_name": "Kitchen",
+      "answer_preview": "Based on the current camera view, I cannot determine the status of the oven beca",
+      "status_code": 200,
+      "question": "Is the oven turned off?",
+      "expected_mode": "single",
+      "query_index": 6
+    },
+    {
+      "success": true,
+      "latency_ms": 7426.4,
+      "mode": "single",
+      "camera_name": "Webcam",
+      "answer_preview": "I cannot see anything in the live feed from 'Webcam' because the image is comple",
+      "status_code": 200,
+      "question": "Can you see any cars in the driveway?",
+      "expected_mode": "single",
+      "query_index": 7
+    },
+    {
+      "success": true,
+      "latency_ms": 16790.1,
+      "mode": "single",
+      "camera_name": "Webcam",
+      "answer_preview": "I cannot determine what is happening near the entrance because the camera feed i",
+      "status_code": 200,
+      "question": "What's happening near the entrance?",
+      "expected_mode": "single",
+      "query_index": 8
+    },
+    {
+      "success": true,
+      "latency_ms": 5007.7,
+      "mode": "single",
+      "camera_name": "Kitchen",
+      "answer_preview": "Based on the live feed from the kitchen camera, the room is quite dark, so it ap",
+      "status_code": 200,
+      "question": "Are the lights on in the kitchen?",
+      "expected_mode": "single",
+      "query_index": 9
+    },
+    {
+      "success": true,
+      "latency_ms": 5317.2,
+      "mode": "single",
+      "camera_name": "Kitchen",
+      "answer_preview": "I cannot see a refrigerator in this camera view; the image only shows the counte",
+      "status_code": 200,
+      "question": "Is the fridge door open?",
+      "expected_mode": "single",
+      "query_index": 10
+    },
+    {
+      "success": true,
+      "latency_ms": 4475.4,
+      "mode": "single",
+      "camera_name": "Webcam",
+      "answer_preview": "I cannot determine if someone is waiting outside because the camera feed is comp",
+      "status_code": 200,
+      "question": "Is someone waiting outside?",
+      "expected_mode": "single",
+      "query_index": 11
+    },
+    {
+      "success": true,
+      "latency_ms": 4620.3,
+      "mode": "single",
+      "camera_name": "Kitchen",
+      "answer_preview": "Based on the live feed from the kitchen camera, there are currently **0** people",
+      "status_code": 200,
+      "question": "How many people are in the kitchen?",
+      "expected_mode": "single",
+      "query_index": 12
+    },
+    {
+      "success": true,
+      "latency_ms": 4483.1,
+      "mode": "single",
+      "camera_name": "Webcam",
+      "answer_preview": "No, the porch light does not appear to be on; the video feed is completely dark.",
+      "status_code": 200,
+      "question": "Is the porch light on?",
+      "expected_mode": "single",
+      "query_index": 13
+    },
+    {
+      "success": true,
+      "latency_ms": 4592.6,
+      "mode": "single",
+      "camera_name": "Kitchen",
+      "answer_preview": "Based on the live feed from the kitchen camera, there is a small pot or pan rest",
+      "status_code": 200,
+      "question": "What's on the stove?",
+      "expected_mode": "single",
+      "query_index": 14
+    },
+    {
+      "success": true,
+      "latency_ms": 4597.0,
+      "mode": "single",
+      "camera_name": "Webcam",
+      "answer_preview": "No, I cannot see through the front door window right now because the camera feed",
+      "status_code": 200,
+      "question": "Can you see through the front door window?",
+      "expected_mode": "single",
+      "query_index": 15
+    },
+    {
+      "success": true,
+      "latency_ms": 3784.2,
+      "mode": "all",
+      "camera_name": "Webcam, Kitchen",
+      "answer_preview": "Based on the analysis of both camera feeds:\n\n* **Webcam:** 0 people visible (com",
+      "status_code": 200,
+      "question": "How many people are visible across all cameras?",
+      "expected_mode": "all",
+      "query_index": 16
+    },
+    {
+      "success": true,
+      "latency_ms": 4115.1,
+      "mode": "all",
+      "camera_name": "Webcam, Kitchen",
+      "answer_preview": "Based on the camera feeds:\n\n* **Webcam:** Completely dark; no visible people or ",
+      "status_code": 200,
+      "question": "Is anyone home? Check everywhere",
+      "expected_mode": "all",
+      "query_index": 17
+    },
+    {
+      "success": true,
+      "latency_ms": 4773.7,
+      "mode": "all",
+      "camera_name": "Webcam, Kitchen",
+      "answer_preview": "Here is the status report for each camera:\n\n* **Webcam:** The feed is completely",
+      "status_code": 200,
+      "question": "Give me a status report from every camera",
+      "expected_mode": "all",
+      "query_index": 18
+    },
+    {
+      "success": true,
+      "latency_ms": 4047.3,
+      "mode": "all",
+      "camera_name": "Webcam, Kitchen",
+      "answer_preview": "Based on the camera feeds:\n\n- **Webcam:** The feed is completely black, showing ",
+      "status_code": 200,
+      "question": "Is there any unusual activity anywhere?",
+      "expected_mode": "all",
+      "query_index": 19
+    },
+    {
+      "success": true,
+      "latency_ms": 5570.2,
+      "mode": "single",
+      "camera_name": "Webcam",
+      "answer_preview": "I cannot determine if the rooms are empty because the live feed is completely bl",
+      "status_code": 200,
+      "question": "Are all rooms empty right now?",
+      "expected_mode": "all",
+      "query_index": 20
+    }
+  ],
+  "_metadata": {
+    "timestamp": "2026-09-13T13:43:05.703708",
+    "results_file": "C:\\Users\\benny\\Projects\\Video Analyzer\\X\\benchmarks\\results\\latency_results.json"
+  }
+}
